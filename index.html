@@ -16,24 +16,110 @@
     font-family: Helvetica, Arial, sans-serif;
   }
 
-  #editScreen {
+  .screen {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
+    display: none;
+    box-sizing: border-box;
+  }
+  .screen.active { display: block; }
+
+  /* ---------- LIST SCREEN ---------- */
+  #listScreen {
     background: #111;
     padding: 20px;
-    box-sizing: border-box;
-    display: block;
+    overflow-y: auto;
+  }
+  #listScreen h1 {
+    color: #fff;
+    font-size: 22px;
+    margin: 0 0 16px 0;
+  }
+  #newScriptBtn {
+    width: 100%;
+    padding: 14px;
+    font-size: 18px;
+    background: #2d7cf6;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+  #scriptList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  #scriptList li {
+    background: #1c1c1c;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 10px;
+    color: #fff;
+  }
+  .scriptItemTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .scriptTitle {
+    font-size: 18px;
+    font-weight: bold;
+    flex: 1;
+  }
+  .scriptDate {
+    color: #888;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  .scriptActions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .scriptActions button {
+    flex: 1;
+    padding: 10px;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+  }
+  .btnOpen { background: #2d7cf6; }
+  .btnEdit { background: #444; }
+  .btnDelete { background: #b3261e; }
+
+  #listStatus {
+    color: #999;
+    font-size: 14px;
+    margin-top: 10px;
   }
 
+  /* ---------- EDIT SCREEN ---------- */
+  #editScreen {
+    background: #111;
+    padding: 20px;
+  }
   #editScreen h1 {
     color: #fff;
     font-size: 20px;
     margin: 0 0 12px 0;
   }
-
+  #titleInput {
+    width: 100%;
+    box-sizing: border-box;
+    background: #222;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 6px;
+    font-size: 18px;
+    padding: 10px;
+    margin-bottom: 12px;
+  }
   #scriptInput {
     width: 100%;
-    height: 55%;
+    height: 45%;
     box-sizing: border-box;
     background: #222;
     color: #fff;
@@ -42,49 +128,52 @@
     font-size: 18px;
     padding: 10px;
   }
-
   .settingsRow {
     margin-top: 14px;
     color: #ccc;
     font-size: 16px;
   }
+  .settingsRow label { display: inline-block; width: 130px; }
+  input[type="range"] { width: 55%; vertical-align: middle; }
 
-  .settingsRow label {
-    display: inline-block;
-    width: 130px;
-  }
-
-  input[type="range"] {
-    width: 60%;
-    vertical-align: middle;
-  }
-
-  #startBtn {
+  .editButtonsRow {
+    display: flex;
+    gap: 10px;
     margin-top: 18px;
-    width: 100%;
+  }
+  .editButtonsRow button {
+    flex: 1;
     padding: 14px;
-    font-size: 20px;
-    background: #2d7cf6;
-    color: #fff;
+    font-size: 18px;
     border: none;
     border-radius: 8px;
+    color: #fff;
+  }
+  #saveBtn { background: #1f9d55; }
+  #startFromEditBtn { background: #2d7cf6; }
+  #backToListBtn {
+    background: none;
+    color: #aaa;
+    border: 1px solid #444;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+  #editStatus {
+    color: #999;
+    font-size: 13px;
+    margin-top: 8px;
+    min-height: 16px;
   }
 
-  /* ---- Prompter screen ---- */
-  #prompterScreen {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: #000;
-    display: none;
-    overflow: hidden;
-  }
-
+  /* ---------- PROMPTER SCREEN ---------- */
+  #prompterScreen { background: #000; }
   #scrollWrap {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     overflow: hidden;
   }
-
   #textContent {
     position: absolute;
     left: 0; right: 0;
@@ -97,7 +186,6 @@
     box-sizing: border-box;
     white-space: pre-wrap;
   }
-
   #centerLine {
     position: absolute;
     left: 0; right: 0;
@@ -106,7 +194,6 @@
     background: rgba(255,0,0,0.35);
     pointer-events: none;
   }
-
   #controls {
     position: absolute;
     bottom: 0; left: 0; right: 0;
@@ -116,7 +203,6 @@
     display: flex;
     align-items: center;
   }
-
   #controls button {
     background: #333;
     color: #fff;
@@ -126,13 +212,8 @@
     padding: 10px 16px;
     margin-right: 8px;
   }
-
-  #controls input[type="range"] {
-    flex: 1;
-    margin: 0 8px;
-  }
-
-  #backBtn {
+  #controls input[type="range"] { flex: 1; margin: 0 8px; }
+  #backFromPrompterBtn {
     position: absolute;
     top: 10px;
     left: 10px;
@@ -144,13 +225,28 @@
     font-size: 14px;
     z-index: 10;
   }
+
+  .spinner {
+    color: #888;
+    font-size: 14px;
+  }
 </style>
 </head>
 <body>
 
+<!-- LIST SCREEN -->
+<div id="listScreen" class="screen active">
+  <h1>My Scripts</h1>
+  <button id="newScriptBtn">+ New Script</button>
+  <ul id="scriptList"></ul>
+  <div id="listStatus">Loading scripts...</div>
+</div>
+
 <!-- EDIT SCREEN -->
-<div id="editScreen">
-  <h1>Teleprompter Script</h1>
+<div id="editScreen" class="screen">
+  <button id="backToListBtn">&larr; All Scripts</button>
+  <h1 id="editHeading">Edit Script</h1>
+  <input type="text" id="titleInput" placeholder="Script title">
   <textarea id="scriptInput" placeholder="Paste or type your script here..."></textarea>
 
   <div class="settingsRow">
@@ -162,12 +258,16 @@
     <input type="checkbox" id="mirrorCheck">
   </div>
 
-  <button id="startBtn">Start Teleprompter</button>
+  <div class="editButtonsRow">
+    <button id="saveBtn">Save</button>
+    <button id="startFromEditBtn">Start Teleprompter</button>
+  </div>
+  <div id="editStatus"></div>
 </div>
 
 <!-- PROMPTER SCREEN -->
-<div id="prompterScreen">
-  <button id="backBtn">&larr; Edit</button>
+<div id="prompterScreen" class="screen">
+  <button id="backFromPrompterBtn">&larr; Edit</button>
   <div id="scrollWrap">
     <div id="centerLine"></div>
     <div id="textContent"></div>
@@ -180,61 +280,245 @@
 </div>
 
 <script>
-  var editScreen = document.getElementById('editScreen');
-  var prompterScreen = document.getElementById('prompterScreen');
+  // ====== CONFIG ======
+  // Replace this with your real Render backend URL once deployed.
+  var API_BASE = 'https://teleprompter-backend-jlu9.onrender.com/api/scripts';
+
+  // ====== ELEMENT REFS ======
+  var screens = {
+    list: document.getElementById('listScreen'),
+    edit: document.getElementById('editScreen'),
+    prompter: document.getElementById('prompterScreen')
+  };
+
+  var scriptListEl = document.getElementById('scriptList');
+  var listStatusEl = document.getElementById('listStatus');
+  var newScriptBtn = document.getElementById('newScriptBtn');
+
+  var titleInput = document.getElementById('titleInput');
   var scriptInput = document.getElementById('scriptInput');
-  var startBtn = document.getElementById('startBtn');
-  var backBtn = document.getElementById('backBtn');
-  var textContent = document.getElementById('textContent');
   var fontSizeRange = document.getElementById('fontSizeRange');
   var mirrorCheck = document.getElementById('mirrorCheck');
+  var saveBtn = document.getElementById('saveBtn');
+  var startFromEditBtn = document.getElementById('startFromEditBtn');
+  var backToListBtn = document.getElementById('backToListBtn');
+  var editStatusEl = document.getElementById('editStatus');
+  var editHeading = document.getElementById('editHeading');
+
+  var textContent = document.getElementById('textContent');
   var speedRange = document.getElementById('speedRange');
   var playPauseBtn = document.getElementById('playPauseBtn');
   var resetBtn = document.getElementById('resetBtn');
+  var backFromPrompterBtn = document.getElementById('backFromPrompterBtn');
 
+  var currentScriptId = null; // null = creating a new script
   var scrollPos = 0;
   var playing = true;
   var rafId = null;
 
-  function loadSaved() {
-    try {
-      var saved = localStorage.getItem('teleprompter_script');
-      if (saved) scriptInput.value = saved;
-      var savedFont = localStorage.getItem('teleprompter_fontsize');
-      if (savedFont) fontSizeRange.value = savedFont;
-      var savedMirror = localStorage.getItem('teleprompter_mirror');
-      if (savedMirror === '1') mirrorCheck.checked = true;
-    } catch (e) {}
+  // ====== SCREEN SWITCHING ======
+  function showScreen(name) {
+    for (var key in screens) {
+      screens[key].classList.remove('active');
+    }
+    screens[name].classList.add('active');
   }
-  loadSaved();
 
-  startBtn.addEventListener('click', function() {
-    var text = scriptInput.value;
-    if (!text) { text = '(No script entered)'; }
-    textContent.textContent = text;
-    textContent.style.fontSize = fontSizeRange.value + 'px';
-    textContent.style.transform = mirrorCheck.checked ? 'scaleX(-1)' : 'none';
+  // ====== API HELPERS ======
+  function apiRequest(method, url, body) {
+    var options = {
+      method: method,
+      headers: { 'Content-Type': 'application/json' }
+    };
+    if (body) options.body = JSON.stringify(body);
 
-    try {
-      localStorage.setItem('teleprompter_script', scriptInput.value);
-      localStorage.setItem('teleprompter_fontsize', fontSizeRange.value);
-      localStorage.setItem('teleprompter_mirror', mirrorCheck.checked ? '1' : '0');
-    } catch (e) {}
+    return fetch(url, options).then(function(res) {
+      if (!res.ok) {
+        return res.json().then(function(errData) {
+          throw new Error(errData.error || 'Request failed');
+        });
+      }
+      return res.json();
+    });
+  }
 
-    editScreen.style.display = 'none';
-    prompterScreen.style.display = 'block';
+  // ====== LIST SCREEN LOGIC ======
+  function loadScriptList() {
+    listStatusEl.textContent = 'Loading scripts...';
+    scriptListEl.innerHTML = '';
 
-    scrollPos = window.innerHeight; // start with text below screen, like an offset
+    apiRequest('GET', API_BASE)
+      .then(function(scripts) {
+        if (!scripts.length) {
+          listStatusEl.textContent = 'No scripts yet. Tap "+ New Script" to add one.';
+          return;
+        }
+        listStatusEl.textContent = '';
+        scripts.forEach(function(script) {
+          var li = document.createElement('li');
+
+          var dateStr = '';
+          try {
+            var d = new Date(script.updatedAt);
+            dateStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
+          } catch (e) {}
+
+          li.innerHTML =
+            '<div class="scriptItemTop">' +
+              '<div class="scriptTitle">' + escapeHtml(script.title) + '</div>' +
+            '</div>' +
+            '<div class="scriptDate">Updated: ' + dateStr + '</div>' +
+            '<div class="scriptActions">' +
+              '<button class="btnOpen">Start</button>' +
+              '<button class="btnEdit">Edit</button>' +
+              '<button class="btnDelete">Delete</button>' +
+            '</div>';
+
+          li.querySelector('.btnOpen').addEventListener('click', function() {
+            openScriptAndStart(script._id);
+          });
+          li.querySelector('.btnEdit').addEventListener('click', function() {
+            openScriptForEdit(script._id);
+          });
+          li.querySelector('.btnDelete').addEventListener('click', function() {
+            deleteScript(script._id, li);
+          });
+
+          scriptListEl.appendChild(li);
+        });
+      })
+      .catch(function(err) {
+        listStatusEl.textContent = 'Could not load scripts: ' + err.message + ' (check API_BASE URL and that the backend is awake)';
+      });
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  function deleteScript(id, liEl) {
+    if (!confirm('Delete this script? This cannot be undone.')) return;
+    apiRequest('DELETE', API_BASE + '/' + id)
+      .then(function() {
+        liEl.parentNode.removeChild(liEl);
+      })
+      .catch(function(err) {
+        alert('Delete failed: ' + err.message);
+      });
+  }
+
+  newScriptBtn.addEventListener('click', function() {
+    currentScriptId = null;
+    titleInput.value = '';
+    scriptInput.value = '';
+    fontSizeRange.value = 40;
+    mirrorCheck.checked = false;
+    editHeading.textContent = 'New Script';
+    editStatusEl.textContent = '';
+    showScreen('edit');
+  });
+
+  backToListBtn.addEventListener('click', function() {
+    showScreen('list');
+    loadScriptList();
+  });
+
+  // ====== EDIT SCREEN LOGIC ======
+  function openScriptForEdit(id) {
+    editStatusEl.textContent = '';
+    apiRequest('GET', API_BASE + '/' + id)
+      .then(function(script) {
+        currentScriptId = script._id;
+        titleInput.value = script.title;
+        scriptInput.value = script.content;
+        fontSizeRange.value = script.fontSize || 40;
+        mirrorCheck.checked = !!script.mirror;
+        editHeading.textContent = 'Edit Script';
+        showScreen('edit');
+      })
+      .catch(function(err) {
+        alert('Could not load script: ' + err.message);
+      });
+  }
+
+  function openScriptAndStart(id) {
+    apiRequest('GET', API_BASE + '/' + id)
+      .then(function(script) {
+        currentScriptId = script._id;
+        titleInput.value = script.title;
+        scriptInput.value = script.content;
+        fontSizeRange.value = script.fontSize || 40;
+        mirrorCheck.checked = !!script.mirror;
+        startPrompter();
+      })
+      .catch(function(err) {
+        alert('Could not load script: ' + err.message);
+      });
+  }
+
+  function getCurrentFormData() {
+    return {
+      title: titleInput.value.trim() || 'Untitled Script',
+      content: scriptInput.value,
+      fontSize: parseInt(fontSizeRange.value, 10),
+      mirror: mirrorCheck.checked
+    };
+  }
+
+  function saveCurrentScript(callback) {
+    var data = getCurrentFormData();
+    editStatusEl.textContent = 'Saving...';
+
+    var request;
+    if (currentScriptId) {
+      request = apiRequest('PUT', API_BASE + '/' + currentScriptId, data);
+    } else {
+      request = apiRequest('POST', API_BASE, data);
+    }
+
+    request
+      .then(function(savedScript) {
+        currentScriptId = savedScript._id;
+        editStatusEl.textContent = 'Saved.';
+        if (callback) callback(savedScript);
+      })
+      .catch(function(err) {
+        editStatusEl.textContent = 'Save failed: ' + err.message;
+      });
+  }
+
+  saveBtn.addEventListener('click', function() {
+    saveCurrentScript();
+  });
+
+  startFromEditBtn.addEventListener('click', function() {
+    // Always save first so the iPad and PC stay in sync, then start.
+    saveCurrentScript(function() {
+      startPrompter();
+    });
+  });
+
+  // ====== PROMPTER SCREEN LOGIC ======
+  function startPrompter() {
+    var data = getCurrentFormData();
+    textContent.textContent = data.content || '(No script entered)';
+    textContent.style.fontSize = data.fontSize + 'px';
+    textContent.style.transform = data.mirror ? 'scaleX(-1)' : 'none';
+
+    showScreen('prompter');
+
+    scrollPos = window.innerHeight;
     textContent.style.top = scrollPos + 'px';
     playing = true;
     playPauseBtn.textContent = 'Pause';
     runLoop();
-  });
+  }
 
-  backBtn.addEventListener('click', function() {
+  backFromPrompterBtn.addEventListener('click', function() {
     cancelAnimationFrame(rafId);
-    prompterScreen.style.display = 'none';
-    editScreen.style.display = 'block';
+    showScreen('edit');
   });
 
   playPauseBtn.addEventListener('click', function() {
@@ -250,7 +534,7 @@
   function runLoop() {
     function step() {
       if (playing) {
-        var speed = parseInt(speedRange.value, 10) / 10; // pixels per frame, roughly
+        var speed = parseInt(speedRange.value, 10) / 10;
         scrollPos -= speed;
         textContent.style.top = scrollPos + 'px';
       }
@@ -258,6 +542,9 @@
     }
     rafId = requestAnimationFrame(step);
   }
+
+  // ====== INIT ======
+  loadScriptList();
 </script>
 
 </body>
