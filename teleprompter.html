@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>Teleprompter</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: Helvetica, Arial, sans-serif;
+  }
+
+  #editScreen {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #111;
+    padding: 20px;
+    box-sizing: border-box;
+    display: block;
+  }
+
+  #editScreen h1 {
+    color: #fff;
+    font-size: 20px;
+    margin: 0 0 12px 0;
+  }
+
+  #scriptInput {
+    width: 100%;
+    height: 55%;
+    box-sizing: border-box;
+    background: #222;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 6px;
+    font-size: 18px;
+    padding: 10px;
+  }
+
+  .settingsRow {
+    margin-top: 14px;
+    color: #ccc;
+    font-size: 16px;
+  }
+
+  .settingsRow label {
+    display: inline-block;
+    width: 130px;
+  }
+
+  input[type="range"] {
+    width: 60%;
+    vertical-align: middle;
+  }
+
+  #startBtn {
+    margin-top: 18px;
+    width: 100%;
+    padding: 14px;
+    font-size: 20px;
+    background: #2d7cf6;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+  }
+
+  /* ---- Prompter screen ---- */
+  #prompterScreen {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #000;
+    display: none;
+    overflow: hidden;
+  }
+
+  #scrollWrap {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    overflow: hidden;
+  }
+
+  #textContent {
+    position: absolute;
+    left: 0; right: 0;
+    top: 100%;
+    color: #fff;
+    font-size: 40px;
+    line-height: 1.4;
+    text-align: center;
+    padding: 0 30px;
+    box-sizing: border-box;
+    white-space: pre-wrap;
+  }
+
+  #centerLine {
+    position: absolute;
+    left: 0; right: 0;
+    top: 50%;
+    height: 1px;
+    background: rgba(255,0,0,0.35);
+    pointer-events: none;
+  }
+
+  #controls {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(20,20,20,0.85);
+    padding: 10px 14px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+  }
+
+  #controls button {
+    background: #333;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 18px;
+    padding: 10px 16px;
+    margin-right: 8px;
+  }
+
+  #controls input[type="range"] {
+    flex: 1;
+    margin: 0 8px;
+  }
+
+  #backBtn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(40,40,40,0.8);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 14px;
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+
+<!-- EDIT SCREEN -->
+<div id="editScreen">
+  <h1>Teleprompter Script</h1>
+  <textarea id="scriptInput" placeholder="Paste or type your script here..."></textarea>
+
+  <div class="settingsRow">
+    <label>Font size</label>
+    <input type="range" id="fontSizeRange" min="20" max="80" value="40">
+  </div>
+  <div class="settingsRow">
+    <label>Mirror text</label>
+    <input type="checkbox" id="mirrorCheck">
+  </div>
+
+  <button id="startBtn">Start Teleprompter</button>
+</div>
+
+<!-- PROMPTER SCREEN -->
+<div id="prompterScreen">
+  <button id="backBtn">&larr; Edit</button>
+  <div id="scrollWrap">
+    <div id="centerLine"></div>
+    <div id="textContent"></div>
+  </div>
+  <div id="controls">
+    <button id="playPauseBtn">Pause</button>
+    <input type="range" id="speedRange" min="1" max="20" value="6">
+    <button id="resetBtn">Reset</button>
+  </div>
+</div>
+
+<script>
+  var editScreen = document.getElementById('editScreen');
+  var prompterScreen = document.getElementById('prompterScreen');
+  var scriptInput = document.getElementById('scriptInput');
+  var startBtn = document.getElementById('startBtn');
+  var backBtn = document.getElementById('backBtn');
+  var textContent = document.getElementById('textContent');
+  var fontSizeRange = document.getElementById('fontSizeRange');
+  var mirrorCheck = document.getElementById('mirrorCheck');
+  var speedRange = document.getElementById('speedRange');
+  var playPauseBtn = document.getElementById('playPauseBtn');
+  var resetBtn = document.getElementById('resetBtn');
+
+  var scrollPos = 0;
+  var playing = true;
+  var rafId = null;
+
+  function loadSaved() {
+    try {
+      var saved = localStorage.getItem('teleprompter_script');
+      if (saved) scriptInput.value = saved;
+      var savedFont = localStorage.getItem('teleprompter_fontsize');
+      if (savedFont) fontSizeRange.value = savedFont;
+      var savedMirror = localStorage.getItem('teleprompter_mirror');
+      if (savedMirror === '1') mirrorCheck.checked = true;
+    } catch (e) {}
+  }
+  loadSaved();
+
+  startBtn.addEventListener('click', function() {
+    var text = scriptInput.value;
+    if (!text) { text = '(No script entered)'; }
+    textContent.textContent = text;
+    textContent.style.fontSize = fontSizeRange.value + 'px';
+    textContent.style.transform = mirrorCheck.checked ? 'scaleX(-1)' : 'none';
+
+    try {
+      localStorage.setItem('teleprompter_script', scriptInput.value);
+      localStorage.setItem('teleprompter_fontsize', fontSizeRange.value);
+      localStorage.setItem('teleprompter_mirror', mirrorCheck.checked ? '1' : '0');
+    } catch (e) {}
+
+    editScreen.style.display = 'none';
+    prompterScreen.style.display = 'block';
+
+    scrollPos = window.innerHeight; // start with text below screen, like an offset
+    textContent.style.top = scrollPos + 'px';
+    playing = true;
+    playPauseBtn.textContent = 'Pause';
+    runLoop();
+  });
+
+  backBtn.addEventListener('click', function() {
+    cancelAnimationFrame(rafId);
+    prompterScreen.style.display = 'none';
+    editScreen.style.display = 'block';
+  });
+
+  playPauseBtn.addEventListener('click', function() {
+    playing = !playing;
+    playPauseBtn.textContent = playing ? 'Pause' : 'Play';
+  });
+
+  resetBtn.addEventListener('click', function() {
+    scrollPos = window.innerHeight;
+    textContent.style.top = scrollPos + 'px';
+  });
+
+  function runLoop() {
+    function step() {
+      if (playing) {
+        var speed = parseInt(speedRange.value, 10) / 10; // pixels per frame, roughly
+        scrollPos -= speed;
+        textContent.style.top = scrollPos + 'px';
+      }
+      rafId = requestAnimationFrame(step);
+    }
+    rafId = requestAnimationFrame(step);
+  }
+</script>
+
+</body>
+</html>
