@@ -257,6 +257,10 @@
     <label>Mirror text</label>
     <input type="checkbox" id="mirrorCheck">
   </div>
+  <div class="settingsRow">
+    <label>Rotate 180&deg;</label>
+    <input type="checkbox" id="rotateCheck">
+  </div>
 
   <div class="editButtonsRow">
     <button id="saveBtn">Save</button>
@@ -299,6 +303,7 @@
   var scriptInput = document.getElementById('scriptInput');
   var fontSizeRange = document.getElementById('fontSizeRange');
   var mirrorCheck = document.getElementById('mirrorCheck');
+  var rotateCheck = document.getElementById('rotateCheck');
   var saveBtn = document.getElementById('saveBtn');
   var startFromEditBtn = document.getElementById('startFromEditBtn');
   var backToListBtn = document.getElementById('backToListBtn');
@@ -432,6 +437,7 @@
     scriptInput.value = '';
     fontSizeRange.value = 40;
     mirrorCheck.checked = false;
+    rotateCheck.checked = false;
     editHeading.textContent = 'New Script';
     editStatusEl.textContent = '';
     showScreen('edit');
@@ -452,6 +458,7 @@
         scriptInput.value = script.content;
         fontSizeRange.value = script.fontSize || 40;
         mirrorCheck.checked = !!script.mirror;
+        rotateCheck.checked = !!script.rotate;
         editHeading.textContent = 'Edit Script';
         showScreen('edit');
       })
@@ -468,6 +475,7 @@
         scriptInput.value = script.content;
         fontSizeRange.value = script.fontSize || 40;
         mirrorCheck.checked = !!script.mirror;
+        rotateCheck.checked = !!script.rotate;
         startPrompter();
       })
       .catch(function(err) {
@@ -480,7 +488,8 @@
       title: titleInput.value.trim() || 'Untitled Script',
       content: scriptInput.value,
       fontSize: parseInt(fontSizeRange.value, 10),
-      mirror: mirrorCheck.checked
+      mirror: mirrorCheck.checked,
+      rotate: rotateCheck.checked
     };
   }
 
@@ -522,7 +531,14 @@
     var data = getCurrentFormData();
     textContent.textContent = data.content || '(No script entered)';
     textContent.style.fontSize = data.fontSize + 'px';
-    textContent.style.transform = data.mirror ? 'scaleX(-1)' : 'none';
+
+    // Mirror flips left-right (scaleX), rotate flips the whole image
+    // 180 degrees. Both can be combined - order doesn't matter for a
+    // 180 rotate combined with a horizontal flip.
+    var transformParts = [];
+    if (data.rotate) transformParts.push('rotate(180deg)');
+    if (data.mirror) transformParts.push('scaleX(-1)');
+    textContent.style.transform = transformParts.length ? transformParts.join(' ') : 'none';
 
     showScreen('prompter');
 
